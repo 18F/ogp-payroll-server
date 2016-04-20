@@ -154,10 +154,10 @@ class Command(BaseCommand):
                         )
                     rate_instance.save()
                     if 'rate' in rate['occupation']:
-                        rate_instance.rate_name=rate['occupation']['rate']['title']
+                        rate_instance.rate_name=rate['occupation']['rate']['title'] or ''
                         rate_instance.rate_name_qualifier=rate['occupation']['rate']['qualifier'] or ''
                         if 'subrate' in rate['occupation']:
-                            rate_instance.subrate_name=rate['occupation']['subrate']['title']
+                            rate_instance.subrate_name=rate['occupation']['subrate']['title'] or ''
                             rate_instance.subrate_name_qualifier=rate['occupation']['subrate']['qualifier'] or ''
                     for raw_county in rate['counties']:
                         county = models.County.get_or_make(raw_county['state'], raw_county['county'])

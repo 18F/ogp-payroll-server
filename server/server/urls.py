@@ -16,13 +16,20 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
-from wage_determinations.views import CountyViewSet
+from wage_determinations.views import CountyViewSet, StateViewSet, WageDeterminationViewSet, RateViewSet, RateSearchList
+from payrolls.views import UserList, UserDetail
 
 router = routers.DefaultRouter()
-router.register(r'counties', CountyViewSet)
+router.register(r'county', CountyViewSet)
+router.register(r'state', StateViewSet)
+router.register(r'wage-determination', WageDeterminationViewSet)
+router.register(r'rate', RateViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^users/$', UserList.as_view()),
+    url(r'^users/(?P<pk>[0-9]+)/$', UserDetail.as_view()),
+    url(r'^rate/search/(?P<q>.*)$', RateSearchList.as_view()),
 ]

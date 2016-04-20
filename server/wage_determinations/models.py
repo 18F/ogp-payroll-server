@@ -1,5 +1,6 @@
 from django.db import models
 from django.core import exceptions
+from pg_fts.fields import TSVectorField
 
 
 class State(models.Model):
@@ -65,8 +66,19 @@ class Rate(models.Model):
     location_qualifier = models.TextField(blank=True)
     survey_location_qualifier = models.TextField(blank=True)
 
+    # when a user needs to request a new determination
+    # official_dol = models.BooleanField(default=True)
+
     def __str__(self):
         return '{determination}: {occupation}/{rate_name}/{subrate_name} ${dollars_per_hour}'.format(determination=self.determination, **self.__dict__)
+
+    fts_index = TSVectorField(
+        (('occupation', 'A'), ('rate_name', 'B'),
+         ('subrate_name', 'B'), 'occupation_qualifier',
+         'rate_name_qualifier', 'subrate_name_qualifier',
+        ),
+        dictionary='portuguese'
+    )
 
 def delete_all():
     County.objects.all().delete()
