@@ -18,6 +18,8 @@ from django.contrib import admin
 from rest_framework import routers
 from wage_determinations.views import CountyViewSet, StateViewSet, WageDeterminationViewSet, RateViewSet, RateSearchList
 from payrolls.views import UserList, UserDetail
+from fpds.views import get_fpds
+from sam.views import get_sam
 
 router = routers.DefaultRouter()
 router.register(r'county', CountyViewSet)
@@ -31,5 +33,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^users/$', UserList.as_view()),
     url(r'^users/(?P<pk>[0-9]+)/$', UserDetail.as_view()),
-    url(r'^rate/search/(?P<q>.*)$', RateSearchList.as_view()),
+    url(r'^rate/search/(?P<terms>.*)$', RateSearchList.as_view()),
+    url(r'^contract/(?P<contract_no>[0-9A-Z]+)/$', get_fpds, name='fpds'),
+    url(r'^contractor/(?P<duns>[0-9A-Z]+)/$', get_sam, name='sam'),
 ]

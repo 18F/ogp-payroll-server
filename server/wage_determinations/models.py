@@ -4,6 +4,7 @@ from pg_fts.fields import TSVectorField
 
 
 class State(models.Model):
+    abbrev = models.TextField(unique=True)
     name = models.TextField(unique=True)
 
     def __str__(self):
@@ -18,11 +19,11 @@ class County(models.Model):
     # need: compound unique state - county constraint
 
     @classmethod
-    def get_or_make(cls, state_name, county_name):
+    def get_or_make(cls, state_abbrev, state_name, county_name):
         try:
-            state = State.objects.get(name=state_name)
+            state = State.objects.get(abbrev=state_abbrev)
         except exceptions.ObjectDoesNotExist:
-            state = State(name=state_name)
+            state = State(abbrev=state_abbrev, name=state_name)
             state.save()
         try:
             county = cls.objects.get(name=county_name)

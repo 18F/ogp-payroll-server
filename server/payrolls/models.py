@@ -53,13 +53,16 @@ class Worker(models.Model):
     payroll = models.ForeignKey(Payroll)
     name = models.TextField()
     number_withholding_exceptions = models.IntegerField(default=0)
+    special = models.TextField(blank=True)  # for owner, salaried, etc.
 
 
 class PayrollLine(models.Model):
+    TIME_TYPE_CHOICES = [('REG', 'Regular'), ('OT', 'Overtime'), ]
     worker = models.ForeignKey(Worker)
     dol_rate = models.ForeignKey(Rate, blank=True)
     dollars_per_hour = models.DecimalField(blank=True, max_digits=6, decimal_places=2)
     response = models.TextField(blank=True)
+    time_type = models.TextField(choices=TIME_TYPE_CHOICES)
 
 
 class Day(models.Model):

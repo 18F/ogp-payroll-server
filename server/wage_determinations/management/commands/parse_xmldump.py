@@ -25,9 +25,11 @@ def dt(element):
     return datetime.strptime(element.text, '%Y-%m-%d').date()
 
 def counties(det):
+    abbrev = det.find('wageDeterminationCode').text[:2].upper()
     for county in det.xpath('location/state/countyIncludedList/countyName'):
         yield {'county': county.text,
                'state': county.iterancestors('state').__next__().find('stateName').text,
+               'abbrev': abbrev,
               }
 
 def construction_type_qualifier(el):
@@ -67,6 +69,7 @@ def extract_rates(filename=DEFAULT_FILENAME):
                 for construction_type in construction_types(group):
                     result = {
                               'location_qualifier': group.find('locationQualifier').text,
+                              # TODO: Use loc qualifier to further filter the county list
                               'survey_location_qualifier': raw_det.find('surveyLocationQualifier').text,
                               'counties': list(counties(raw_det)),
                               'effective_date': dt(group.find('effectiveDate')),
@@ -160,7 +163,7 @@ class Command(BaseCommand):
                             rate_instance.subrate_name=rate['occupation']['subrate']['title'] or ''
                             rate_instance.subrate_name_qualifier=rate['occupation']['subrate']['qualifier'] or ''
                     for raw_county in rate['counties']:
-                        county = models.County.get_or_make(raw_county['state'], raw_county['county'])
+                        county = models.County.get_or_make(raw_county['abbrev'], raw_county['state'], raw_county['county'])
                         rate_instance.counties.add(county)
                         print(county)
                     rate_instance.save()
