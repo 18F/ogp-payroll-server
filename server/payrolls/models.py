@@ -5,9 +5,17 @@ from wage_determinations.models import State, County, Rate
 class Location(models.Model):
     street = models.TextField()
     city = models.TextField()
-    state = models.ForeignKey(State)
+    state = models.TextField()
     zip_code = models.TextField()
-    county = models.ForeignKey(County)
+    county = models.ForeignKey(County, null=True)
+
+    @classmethod
+    def make(cls, data):
+        county = County.get_or_make(data['county'])
+        location = cls(street=data['street'],
+            city=data['city'], zip_code=data['zip_code'],
+            county=county)
+        return location
 
 
 class Contractor(models.Model):
@@ -17,6 +25,17 @@ class Contractor(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     submitter = models.ForeignKey('auth.User', related_name='contractors')
+
+    @classmethod
+    def make(cls, data):
+        location = Location.make(data['location'])
+
+        county = County.get_or_make(data['county'])
+        location = cls(street=data['street'],
+            city=data['city'], zip_code=data['zip_code'],
+            county=county)
+        return location
+
 
 
 class Project(models.Model):
@@ -43,6 +62,12 @@ class Payroll(models.Model):
     response = models.TextField(blank=True)
 
 
+class PayrollUpload(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    uploader = models.ForeignKey('auth.User', to_field='id')
+    datafile = models.FileField()
+
+
 class FringeException(models.Model):
     exception = models.TextField()
     explanation = models.TextField(blank=True)
@@ -57,17 +82,22 @@ class Worker(models.Model):
 
 
 class PayrollLine(models.Model):
-    TIME_TYPE_CHOICES = [('REG', 'Regular'), ('OT', 'Overtime'), ]
+    REGULAR = 'REG'
+    OVERTIME = 'OT'
+    # TIME_TYPE_CHOICES = ((REGULAR, 'Regular'), (OVERTIME, 'Overtime'), )
+
     worker = models.ForeignKey(Worker)
-    dol_rate = models.ForeignKey(Rate, blank=True)
+    dol_rate = models.ForeignKey(Rate, null=True, blank=True)
     dollars_per_hour = models.DecimalField(blank=True, max_digits=6, decimal_places=2)
     response = models.TextField(blank=True)
-    time_type = models.TextField(choices=TIME_TYPE_CHOICES)
+    # time_type = models.CharField(max_length=3, choices=((REGULAR, 'Regular'), (OVERTIME, 'Overtime'), ))
+    time_type = models.TextField(default='REG')
 
 
 class Day(models.Model):
     payroll_line = models.ForeignKey(PayrollLine)
-    work_classification = models.TextField() # tie to WDOL!
+    job_name = models.TextField()
+    work_classification = models.TextField(blank=True,) # tie to WDOL!
     date = models.DateField()
     hours = models.FloatField()
 

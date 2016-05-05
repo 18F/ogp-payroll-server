@@ -163,7 +163,10 @@ class Command(BaseCommand):
                             rate_instance.subrate_name=rate['occupation']['subrate']['title'] or ''
                             rate_instance.subrate_name_qualifier=rate['occupation']['subrate']['qualifier'] or ''
                     for raw_county in rate['counties']:
-                        county = models.County.get_or_make(raw_county['abbrev'], raw_county['state'], raw_county['county'])
+                        state = models.State.get_or_make(raw_county['abbrev'], raw_county['state'])
+                        state.save()
+                        county = models.County.get_or_make('{county}, {abbrev}'.format(**raw_county))
+                        county.save()
                         rate_instance.counties.add(county)
                         print(county)
                     rate_instance.save()

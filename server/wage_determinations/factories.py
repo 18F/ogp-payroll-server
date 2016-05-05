@@ -1,29 +1,30 @@
-from factory.django import DjangoModelFactory
+from django.contrib import auth
+
 import factory
 from . import models
 
-class StateFactory(DjangoModelFactory):
 
+class StateFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.State
 
-    name = factory.Faker('state_abbr')
+    abbrev = factory.Faker('state_abbr')
+    name = factory.Faker('state')
 
-class CountyFactory(DjangoModelFactory):
 
+class CountyFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.County
 
     name = factory.Faker('city')
-    us_state = factory.SubFactory(StateFactory)
+    # us_state = factory.SubFactory(StateFactory)
+    us_state = factory.Iterator(models.State.objects.all())
 
 
-class WageDeterminationFactory(DjangoModelFactory):
-
+class WageDeterminationFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.WageDetermination
 
-    code = factory.Faker('text', max_nb_chars=8)
-    header = factory.Faker('paragraphs', nb=1)
-    footer = factory.Faker('paragraphs', nb=2)
-    published_date = factory.Faker('date')
+    name = 'ABC001'
+    date = factory.Faker('date')
+    county = factory.SubFactory(CountyFactory)

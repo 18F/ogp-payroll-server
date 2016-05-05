@@ -1,15 +1,17 @@
 from . import serializers, models
 
-from rest_framework import viewsets, views
+from rest_framework import viewsets, views, status
 from rest_framework.response import Response
 
-class CountyViewSet(viewsets.ReadOnlyModelViewSet):
+class CountyViewSet(viewsets.ModelViewSet):
     queryset = models.County.objects.all()
     serializer_class = serializers.CountySerializer
 
-class StateViewSet(viewsets.ReadOnlyModelViewSet):
+
+class StateViewSet(viewsets.ModelViewSet):
     queryset = models.State.objects.all()
     serializer_class = serializers.StateSerializer
+
 
 class WageDeterminationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.WageDetermination.objects.all()
@@ -31,12 +33,12 @@ class RateSearchList(views.APIView):
             if '=' in piece:
                 param = piece.split('=')[0].strip().lower()
                 if param == 'st':
-                    state = piece.split('=')[1].strip().lower()
+                    state = piece.split('=')[1].strip()
                 elif param == 'co':
-                    county = piece.split('=')[1].strip().lower()
+                    county = piece.split('=')[1].strip()
             else:
                 q = piece.strip()
-        return {'q': q, 'st': state.title(), 'co': county.title()}
+        return {'q': q, 'st': state.upper(), 'co': county.upper()}
 
     _qry = """
         SELECT r.*
@@ -47,14 +49,27 @@ class RateSearchList(views.APIView):
           ON rc.county_id = c.id
         JOIN   wage_determinations_state s
           ON c.us_state_id = s.id
-        WHERE  fts_index @@ to_tsquery(%(q)s)
-        AND    s.name = %(st)s
-        AND    c.name = %(co)s
-        """
+        {} LIMIT {}"""
 
-    def get(self, request, format=None, terms=''):
-        terms = self._parse_terms(terms)
+    def qry(self):
+        # this is SOOOOO sql-injectable
+        filters = []
+        if 'q' in self.request.query_params:
+            filters.append("fts_index @@ to_tsquery(%(q)s)")
+            # TODO: sort by hit quality
+        if 'st' in self.request.query_params:
+            filters.append("(s.name = UPPER(%(st)s) OR s.abbrev = UPPER(%(st)s))")
+        if 'co' in self.request.query_params:
+            filters.append("c.name = UPPER(%(co)s)")
+        if filters:
+            filters = " WHERE " + " AND ".join(filters)
+        else:
+            filters = ""
+        return self._qry.format(filters, 100)
+
+    def get(self, request, format=None):
         # TODO: handle missing state, county
-        rates = models.Rate.objects.raw(self._qry, terms)
+        qry = self.qry()
+        rates = models.Rate.objects.raw(self.qry(), self.request.query_params)
         serializer = serializers.RateSerializer(rates, many=True, context={'request': request})
         return Response(serializer.data)

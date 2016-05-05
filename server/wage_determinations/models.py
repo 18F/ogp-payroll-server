@@ -1,38 +1,71 @@
+import re
+
+comma = re.compile(r'\s*\,\s*')
+
 from django.db import models
 from django.core import exceptions
 from pg_fts.fields import TSVectorField
 
 
 class State(models.Model):
-    abbrev = models.TextField(unique=True)
-    name = models.TextField(unique=True)
+    abbrev = models.TextField(unique=True, db_index=True)
+    name = models.TextField(unique=True, db_index=True)
 
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_make(cls, abbrev, name):
+        abbrev = abbrev.upper()
+        name = name.upper()
+        found = cls.objects.filter(abbrev=abbrev)
+        if found:
+            found = found.filter(name=name)
+            if not found:
+                raise cls.NotFoundError('abbrev {} does not match name {}'.format(abbrev, name))
+            return found.first()
+        return cls(abbrev=abbrev, name=name)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        self.abbrev = self.abbrev.upper()
+        super(State, self).save(*args, **kwargs)
+
+
 class County(models.Model):
     us_state = models.ForeignKey(State)
-    name = models.TextField()
+    name = models.TextField(blank=False, db_index=True)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(County, self).save(*args, **kwargs)
 
     def __str__(self):
         return '{self.name} county, {self.us_state.name}'.format(self=self)
-    # need: compound unique state - county constraint
+    # TODO need: compound unique state - county constraint
 
     @classmethod
-    def get_or_make(cls, state_abbrev, state_name, county_name):
+    def get_or_make(cls, county):
         try:
-            state = State.objects.get(abbrev=state_abbrev)
-        except exceptions.ObjectDoesNotExist:
-            state = State(abbrev=state_abbrev, name=state_name)
-            state.save()
-        try:
-            county = cls.objects.get(name=county_name)
-        except exceptions.ObjectDoesNotExist:
-            county = cls(name=county_name)
-            county.us_state = state
-            county.save()
-        return county
-
+            county = int(county)
+            county = qu.get(pk=county)
+            return county
+        except ValueError:
+            county = county.upper()
+            if ',' in county:
+                (county, state) = comma.split(county)
+                qu = cls.objects.filter(name=county)
+                state = (State.objects.filter(abbrev=state) or State.objects.filter(name=state)).first()
+                if not state:
+                    raise State.NotFoundError('abbrev {} does not match name {}'.format(abbrev, name))
+                qu = qu.filter(us_state=state)
+                if not qu:
+                    return cls(name=county, us_state=state)
+            else:
+                qu = cls.objects.filter(name=county)
+            if len(qu) > 1:
+                raise cls.MultipleObjectsReturned('county {} not unique'.format(county))
+            return qu.first()
 
 
 class WageDetermination(models.Model):

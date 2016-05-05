@@ -11,11 +11,10 @@ class RateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Rate
 
+class StateSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.State
 
 class CountySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.County
-
-class StateSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.State
