@@ -11,6 +11,7 @@ class RateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Rate
 
+
 class StateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.State

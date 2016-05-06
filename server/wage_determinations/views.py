@@ -68,8 +68,10 @@ class RateSearchList(views.APIView):
         return self._qry.format(filters, 100)
 
     def get(self, request, format=None):
-        # TODO: handle missing state, county
         qry = self.qry()
-        rates = models.Rate.objects.raw(self.qry(), self.request.query_params)
+        print(qry)
+        q_terms = {p: v for (p, v) in request.query_params.items()} 
+        print(q_terms)
+        rates = models.Rate.objects.raw(self.qry(), q_terms)
         serializer = serializers.RateSerializer(rates, many=True, context={'request': request})
         return Response(serializer.data)

@@ -111,7 +111,7 @@ class Rate(models.Model):
          ('subrate_name', 'B'), 'occupation_qualifier',
          'rate_name_qualifier', 'subrate_name_qualifier',
         ),
-        dictionary='portuguese'
+        dictionary='english'
     )
 
 def delete_all():

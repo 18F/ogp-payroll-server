@@ -6,7 +6,7 @@ from wage_determinations import models
 from django.core.management.base import BaseCommand, CommandError
 from django.core import exceptions
 
-DEFAULT_FILENAME = '../../clement/wdol_dbra_wd_2016-01-14_02.00.07.xml'
+DEFAULT_FILENAME = 'wd_sources/wdol_dbra_wd_2016-03-24_02.00.10.xml'
 
 def sibling_element(element, name):
     parent = element.getparent()
