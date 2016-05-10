@@ -1,10 +1,12 @@
 import csv
-from . import serializers, models, uploaders
 
-from rest_framework import views, viewsets, generics, parsers, permissions, status, exceptions
-from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from rest_framework import (exceptions, generics, parsers, permissions, status,
+                            views, viewsets)
+from rest_framework.response import Response
+
+from . import models, serializers, uploaders
 
 
 class LocationViewSet(viewsets.ModelViewSet):
@@ -16,8 +18,11 @@ class LocationViewSet(viewsets.ModelViewSet):
         location = models.Location.make(request.data)
         location.save()
         headers = self.get_success_headers(serializer.initial_data)
-        return Response({"url": "/location/{}/".format(location.pk)},
-            status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            {"url": "/location/{}/".format(location.pk)},
+            status=status.HTTP_201_CREATED,
+            headers=headers)
+
 
 class ContractorViewSet(viewsets.ModelViewSet):
     queryset = models.Contractor.objects.all()
@@ -27,6 +32,7 @@ class ContractorViewSet(viewsets.ModelViewSet):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = models.Project.objects.all()
     serializer_class = serializers.ProjectSerializer
+
 
 class PayrollViewSet(viewsets.ModelViewSet):
     queryset = models.Payroll.objects.all()
@@ -43,15 +49,15 @@ class UserDetail(generics.RetrieveAPIView):
     serializer_class = serializers.UserSerializer
 
 
-
 class PayrollUploadViewSet(viewsets.ModelViewSet):
 
     queryset = models.PayrollUpload.objects.all()
     serializer_class = serializers.PayrollUploadSerializer
-    parser_classes = (parsers.MultiPartParser, parsers.FormParser,)
+    parser_classes = (parsers.MultiPartParser, parsers.FormParser, )
 
     def perform_create(self, serializer):
-        import ipdb; ipdb.set_trace()
+        import ipdb
+        ipdb.set_trace()
         raw = self.request.data['datafile'].read()
         uploaders.AmgUploader(self.request).upload(raw)
         self.request.data['datafile'].seek(0)

@@ -1,10 +1,12 @@
 import re
 
+from django.core import exceptions
+from django.db import models
+
+from pg_fts.fields import TSVectorField
+
 comma = re.compile(r'\s*\,\s*')
 
-from django.db import models
-from django.core import exceptions
-from pg_fts.fields import TSVectorField
 
 
 class State(models.Model):
@@ -22,7 +24,8 @@ class State(models.Model):
         if found:
             found = found.filter(name=name)
             if not found:
-                raise cls.NotFoundError('abbrev {} does not match name {}'.format(abbrev, name))
+                raise cls.NotFoundError(
+                    'abbrev {} does not match name {}'.format(abbrev, name))
             return found.first()
         return cls(abbrev=abbrev, name=name)
 
@@ -55,16 +58,20 @@ class County(models.Model):
             if ',' in county:
                 (county, state) = comma.split(county)
                 qu = cls.objects.filter(name=county)
-                state = (State.objects.filter(abbrev=state) or State.objects.filter(name=state)).first()
+                state = (State.objects.filter(abbrev=state) or
+                         State.objects.filter(name=state)).first()
                 if not state:
-                    raise State.NotFoundError('abbrev {} does not match name {}'.format(abbrev, name))
+                    raise State.NotFoundError(
+                        'abbrev {} does not match name {}'.format(abbrev,
+                                                                  name))
                 qu = qu.filter(us_state=state)
                 if not qu:
                     return cls(name=county, us_state=state)
             else:
                 qu = cls.objects.filter(name=county)
             if len(qu) > 1:
-                raise cls.MultipleObjectsReturned('county {} not unique'.format(county))
+                raise cls.MultipleObjectsReturned(
+                    'county {} not unique'.format(county))
             return qu.first()
 
 
@@ -104,15 +111,19 @@ class Rate(models.Model):
     # official_dol = models.BooleanField(default=True)
 
     def __str__(self):
-        return '{determination}: {occupation}/{rate_name}/{subrate_name} ${dollars_per_hour}'.format(determination=self.determination, **self.__dict__)
+        return '{determination}: {occupation}/{rate_name}/{subrate_name} ${dollars_per_hour}'.format(
+            determination=self.determination,
+            **self.__dict__)
 
     fts_index = TSVectorField(
-        (('occupation', 'A'), ('rate_name', 'B'),
-         ('subrate_name', 'B'), 'occupation_qualifier',
-         'rate_name_qualifier', 'subrate_name_qualifier',
-        ),
-        dictionary='english'
-    )
+        (('occupation', 'A'),
+         ('rate_name', 'B'),
+         ('subrate_name', 'B'),
+         'occupation_qualifier',
+         'rate_name_qualifier',
+         'subrate_name_qualifier', ),
+        dictionary='english')
+
 
 def delete_all():
     County.objects.all().delete()

@@ -1,5 +1,6 @@
 from django.db import models
-from wage_determinations.models import State, County, Rate
+
+from wage_determinations.models import County, Rate, State
 
 
 class Location(models.Model):
@@ -13,8 +14,9 @@ class Location(models.Model):
     def make(cls, data):
         county = County.get_or_make(data['county'])
         location = cls(street=data['street'],
-            city=data['city'], zip_code=data['zip_code'],
-            county=county)
+                       city=data['city'],
+                       zip_code=data['zip_code'],
+                       county=county)
         return location
 
 
@@ -32,10 +34,10 @@ class Contractor(models.Model):
 
         county = County.get_or_make(data['county'])
         location = cls(street=data['street'],
-            city=data['city'], zip_code=data['zip_code'],
-            county=county)
+                       city=data['city'],
+                       zip_code=data['zip_code'],
+                       county=county)
         return location
-
 
 
 class Project(models.Model):
@@ -50,7 +52,10 @@ class Payroll(models.Model):
     payroll_number = models.TextField()
     project = models.ForeignKey(Project)
     contractor = models.ForeignKey(Contractor)
-    parent_contractor = models.ForeignKey(Contractor, blank=True, null=True, related_name='parent_contractor')
+    parent_contractor = models.ForeignKey(Contractor,
+                                          blank=True,
+                                          null=True,
+                                          related_name='parent_contractor')
     parent_payroll = models.ForeignKey('Payroll', blank=True, null=True)
     period_end = models.DateField()
     date_submitted_to_parent = models.DateField(blank=True, null=True)
@@ -88,7 +93,9 @@ class PayrollLine(models.Model):
 
     worker = models.ForeignKey(Worker)
     dol_rate = models.ForeignKey(Rate, null=True, blank=True)
-    dollars_per_hour = models.DecimalField(blank=True, max_digits=6, decimal_places=2)
+    dollars_per_hour = models.DecimalField(blank=True,
+                                           max_digits=6,
+                                           decimal_places=2)
     response = models.TextField(blank=True)
     # time_type = models.CharField(max_length=3, choices=((REGULAR, 'Regular'), (OVERTIME, 'Overtime'), ))
     time_type = models.TextField(default='REG')
@@ -97,7 +104,7 @@ class PayrollLine(models.Model):
 class Day(models.Model):
     payroll_line = models.ForeignKey(PayrollLine)
     job_name = models.TextField()
-    work_classification = models.TextField(blank=True,) # tie to WDOL!
+    work_classification = models.TextField(blank=True, )  # tie to WDOL!
     date = models.DateField()
     hours = models.FloatField()
 

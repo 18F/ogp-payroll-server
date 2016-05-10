@@ -7,15 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wage_determinations', '0003_rate_fts_index'),
-    ]
+    dependencies = [('wage_determinations', '0003_rate_fts_index'), ]
 
     operations = [
-        migrations.AddField(
-            model_name='state',
-            name='abbrev',
-            field=models.TextField(default='OH', unique=True),
-            preserve_default=False,
-        ),
+        migrations.AddField(model_name='state',
+                            name='abbrev',
+                            field=models.TextField(default='OH',
+                                                   unique=True),
+                            preserve_default=False, ),
     ]

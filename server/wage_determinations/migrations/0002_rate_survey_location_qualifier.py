@@ -7,14 +7,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wage_determinations', '0001_initial'),
-    ]
+    dependencies = [('wage_determinations', '0001_initial'), ]
 
     operations = [
-        migrations.AddField(
-            model_name='rate',
-            name='survey_location_qualifier',
-            field=models.TextField(blank=True),
-        ),
+        migrations.AddField(model_name='rate',
+                            name='survey_location_qualifier',
+                            field=models.TextField(blank=True), ),
     ]

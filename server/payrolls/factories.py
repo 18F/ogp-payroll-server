@@ -1,16 +1,18 @@
+import random
+
+import factory
 from django.contrib import auth
 
-import random
-import factory
+from wage_determinations.factories import CountyFactory, StateFactory
+
 from . import models
-from wage_determinations.factories import StateFactory, CountyFactory
+
 
 class UserFactory(factory.DjangoModelFactory):
-
     class Meta:
 
         model = auth.get_user_model()
-        exclude = ('raw_password',)
+        exclude = ('raw_password', )
 
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
@@ -27,7 +29,6 @@ class SuperUserFactory(UserFactory):
 
 
 class LocationFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.Location
 
@@ -40,7 +41,6 @@ class LocationFactory(factory.DjangoModelFactory):
 
 
 class ContractorFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.Contractor
 
@@ -53,7 +53,6 @@ class ContractorFactory(factory.DjangoModelFactory):
 
 
 class ProjectFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.Project
 
@@ -65,7 +64,6 @@ class ProjectFactory(factory.DjangoModelFactory):
 
 
 class PayrollFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.Payroll
 
@@ -83,7 +81,6 @@ class PayrollFactory(factory.DjangoModelFactory):
 
 
 class WorkerFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.Worker
 
@@ -94,30 +91,29 @@ class WorkerFactory(factory.DjangoModelFactory):
 
 
 class PayrollLineFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.PayrollLine
 
     worker = factory.SubFactory(WorkerFactory)
     dol_rate = None
-    dollars_per_hour = factory.Faker('pydecimal', left_digits=2, right_digits=2)
+    dollars_per_hour = factory.Faker('pydecimal',
+                                     left_digits=2,
+                                     right_digits=2)
     response = factory.Faker('sentence')
     time_type = 'REG'
 
 
 class DayFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.Day
 
     payroll_line = factory.SubFactory(PayrollLineFactory)
     work_classification = factory.Faker('word')
     date = factory.Faker('date')
-    hours = random.randint(2,8)
+    hours = random.randint(2, 8)
 
 
 class DeductionFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.Deduction
 

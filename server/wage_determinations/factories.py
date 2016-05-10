@@ -1,6 +1,6 @@
+import factory
 from django.contrib import auth
 
-import factory
 from . import models
 
 

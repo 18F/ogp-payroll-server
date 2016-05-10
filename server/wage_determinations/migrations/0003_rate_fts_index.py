@@ -3,8 +3,10 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+
 import pg_fts.fields
-from pg_fts.migrations import CreateFTSIndexOperation, CreateFTSTriggerOperation
+from pg_fts.migrations import (CreateFTSIndexOperation,
+                               CreateFTSTriggerOperation)
 
 
 class Migration(migrations.Migration):
@@ -17,15 +19,18 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rate',
             name='fts_index',
-            field=pg_fts.fields.TSVectorField(default='', dictionary='portuguese', editable=False, fields=(('occupation', 'A'), ('rate_name', 'B'), ('subrate_name', 'B'), 'occupation_qualifier', 'rate_name_qualifier', 'subrate_name_qualifier'), null=True, serialize=False),
-        ),
-        CreateFTSIndexOperation(
-            name='Rate',
-            fts_vector='fts_index',
-            index='gin'
-        ),
-        CreateFTSTriggerOperation(
-        name='Rate',
-        fts_vector='fts_index',
-        ),
+            field=pg_fts.fields.TSVectorField(
+                default='',
+                dictionary='portuguese',
+                editable=False,
+                fields=(('occupation', 'A'), ('rate_name', 'B'), (
+                    'subrate_name', 'B'), 'occupation_qualifier',
+                        'rate_name_qualifier', 'subrate_name_qualifier'),
+                null=True,
+                serialize=False), ),
+        CreateFTSIndexOperation(name='Rate',
+                                fts_vector='fts_index',
+                                index='gin'),
+        CreateFTSTriggerOperation(name='Rate',
+                                  fts_vector='fts_index', ),
     ]

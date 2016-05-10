@@ -1,7 +1,8 @@
-from . import serializers, models
-
-from rest_framework import viewsets, views, status
+from rest_framework import status, views, viewsets
 from rest_framework.response import Response
+
+from . import models, serializers
+
 
 class CountyViewSet(viewsets.ModelViewSet):
     queryset = models.County.objects.all()
@@ -17,12 +18,13 @@ class WageDeterminationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.WageDetermination.objects.all()
     serializer_class = serializers.WageDeterminationSerializer
 
+
 class RateViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Rate.objects.all()
     serializer_class = serializers.RateSerializer
 
-class RateSearchList(views.APIView):
 
+class RateSearchList(views.APIView):
     def get_queryset(self, *args, **kwargs):
         rates = models.Rate.objects.all()[:4]
         return rates
@@ -57,7 +59,8 @@ class RateSearchList(views.APIView):
             rank_term = 'NULL'
             textsearch = "(SELECT 'no text search')"
         if 'st' in self.request.query_params:
-            filters.append("(s.name = UPPER(%(st)s) OR s.abbrev = UPPER(%(st)s))")
+            filters.append(
+                "(s.name = UPPER(%(st)s) OR s.abbrev = UPPER(%(st)s))")
         if 'co' in self.request.query_params:
             filters.append("c.name = UPPER(%(co)s)")
         if 'cat' in self.request.query_params:
@@ -66,7 +69,10 @@ class RateSearchList(views.APIView):
             filters = " WHERE " + " AND ".join(filters)
         else:
             filters = ""
-        return self._qry.format(rank_term=rank_term, textsearch=textsearch, filters=filters, limit=100)
+        return self._qry.format(rank_term=rank_term,
+                                textsearch=textsearch,
+                                filters=filters,
+                                limit=100)
 
     def get(self, request, format=None):
         qry = self.qry()
@@ -74,5 +80,7 @@ class RateSearchList(views.APIView):
         q_terms = {p: v for (p, v) in request.query_params.items()}
         print(q_terms)
         rates = models.Rate.objects.raw(self.qry(), request.query_params)
-        serializer = serializers.RateSerializer(rates, many=True, context={'request': request})
+        serializer = serializers.RateSerializer(rates,
+                                                many=True,
+                                                context={'request': request})
         return Response(serializer.data)

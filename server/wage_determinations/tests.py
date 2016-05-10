@@ -1,11 +1,11 @@
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import APITestCase
-from rest_framework.reverse import reverse
 from rest_framework import status
-from . import models, factories
+from rest_framework.reverse import reverse
+from rest_framework.test import APIRequestFactory, APITestCase
+
+from . import factories, models
+
 
 class CountyTests(APITestCase):
-
     def setUp(self):
 
         county1 = factories.CountyFactory()
@@ -36,7 +36,6 @@ class CountyTests(APITestCase):
 
 
 class WageDeterminationTests(APITestCase):
-
     def setUp(self):
 
         wd1 = factories.WageDeterminationFactory()
