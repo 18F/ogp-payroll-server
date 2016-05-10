@@ -10,6 +10,7 @@ class WageDeterminationSerializer(serializers.HyperlinkedModelSerializer):
 class RateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Rate
+        exclude = ('counties', )
 
 
 class StateSerializer(serializers.HyperlinkedModelSerializer):

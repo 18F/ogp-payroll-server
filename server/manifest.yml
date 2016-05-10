@@ -1,7 +1,7 @@
 memory: 512M
 instances: 1
 applications:
-- name: ogp-server
+- name: ogp-payroll
   path: .
   timeout: 180
   services:

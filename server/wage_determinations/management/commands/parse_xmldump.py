@@ -79,7 +79,7 @@ def extract_rates(filename=DEFAULT_FILENAME):
                                              'title': sibling_text(rate, 'title'),
                                              'qualifier': sibling_text(rate, 'qualifier'),
                                             },},
-                              'construction_type': construction_type,
+                              'construction_type': construction_type.upper(),
                               'groupQualifier': sibling_text(group, 'groupQualifier'),
                     }
                     for parent_rate_type in ('occupation', 'rate'):
