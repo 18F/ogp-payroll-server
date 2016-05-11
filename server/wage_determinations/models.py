@@ -8,7 +8,6 @@ from pg_fts.fields import TSVectorField
 comma = re.compile(r'\s*\,\s*')
 
 
-
 class State(models.Model):
     abbrev = models.TextField(unique=True, db_index=True)
     name = models.TextField(unique=True, db_index=True)
@@ -51,7 +50,7 @@ class County(models.Model):
     def get_or_make(cls, county):
         try:
             county = int(county)
-            county = qu.get(pk=county)
+            county = cls.objects.get(pk=county)
             return county
         except ValueError:
             county = county.upper()

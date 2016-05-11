@@ -21,9 +21,36 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Project
 
 
+class DaySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Day
+
+
+class PayrollLineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.PayrollLine
+
+    day_set = DaySerializer(many=True)
+
+
+class WorkerSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Worker
+
+    payrollline_set = PayrollLineSerializer(many=True)
+
+
+class FringeExceptionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.FringeException
+
+
 class PayrollSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Payroll
+
+    worker_set = WorkerSerializer(many=True)
+    fringeexception_set = FringeExceptionSerializer(many=True)
 
 
 class PayrollUploadSerializer(serializers.HyperlinkedModelSerializer):

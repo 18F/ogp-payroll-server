@@ -50,6 +50,8 @@ class Project(models.Model):
 
 class Payroll(models.Model):
     payroll_number = models.TextField()
+    uploaded_at = models.DateTimeField(auto_now=True)
+    is_current = models.BooleanField(default=True)
     project = models.ForeignKey(Project)
     contractor = models.ForeignKey(Contractor)
     parent_contractor = models.ForeignKey(Contractor,
@@ -66,10 +68,19 @@ class Payroll(models.Model):
     submitter = models.ForeignKey('auth.User', related_name='payrolls')
     response = models.TextField(blank=True)
 
+    def mark_others_noncurrent(self):
+        for existing in Payroll.objects.filter(project=self.project,
+                                               contractor=self.contractor,
+                                               period_end=self.period_end):
+            if existing.id != self.id:
+                existing.is_current = False
+                existing.save()
+
 
 class PayrollUpload(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     uploader = models.ForeignKey('auth.User', to_field='id')
+    payroll = models.ForeignKey(Payroll, blank=True)
     datafile = models.FileField()
 
 

@@ -18,9 +18,11 @@ from django.contrib import admin
 from rest_framework import routers
 
 from fpds.views import get_fpds
-from payrolls.views import (ContractorViewSet, LocationViewSet,
-                            PayrollUploadViewSet, PayrollViewSet,
-                            ProjectViewSet, UserDetail, UserList)
+from payrolls.views import (ContractorViewSet, DayViewSet,
+                            FringeExceptionViewSet, LocationViewSet,
+                            PayrollLineViewSet, PayrollUploadViewSet,
+                            PayrollViewSet, ProjectViewSet, UserDetail,
+                            UserList, WorkerViewSet)
 from sam.views import get_sam
 from wage_determinations.views import (CountyViewSet, RateSearchList,
                                        RateViewSet, StateViewSet,
@@ -33,6 +35,10 @@ router.register(r'contractor', ContractorViewSet)
 router.register(r'location', LocationViewSet)
 router.register(r'project', ProjectViewSet)
 router.register(r'payroll', PayrollViewSet)
+router.register(r'worker', WorkerViewSet)
+router.register(r'payroll_line', PayrollLineViewSet)
+router.register(r'day', DayViewSet)
+router.register(r'fringe-exception', FringeExceptionViewSet)
 router.register(r'payrollupload', PayrollUploadViewSet)
 router.register(r'wage-determination', WageDeterminationViewSet)
 router.register(r'rate', RateViewSet)

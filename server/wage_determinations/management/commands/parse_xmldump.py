@@ -53,7 +53,8 @@ def construction_types(group):
         construction_type = subtype.iterancestors('constructionType').__next__(
         )
         yield {'subtype': subtype.text,
-               'type': construction_type.find('constructionTypeName').text,
+               'type':
+               construction_type.find('constructionTypeName').text.upper(),
                'qualifier': text(group.find('constructionTypeQualifier')),
                'surveyQualifier': construction_type_qualifier(subtype)}
         any_subtypes = True
@@ -91,7 +92,7 @@ def extract_rates(filename=DEFAULT_FILENAME):
                             'title': sibling_text(rate, 'title'),
                             'qualifier': sibling_text(rate, 'qualifier'),
                         }, },
-                        'construction_type': construction_type.upper(),
+                        'construction_type': construction_type,
                         'groupQualifier':
                         sibling_text(group, 'groupQualifier'),
                     }

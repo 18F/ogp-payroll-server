@@ -8,7 +8,6 @@ from lxml import etree
 
 # Create your views here.
 
-
 URL_TEMPLATE = 'https://api.data.gov/sam/v4/registrations/{duns}?api_key={api_key}'
 API_KEY = 'kzDzoh62yMF47LxUM3RedIQe5h4RObsDoeQia1gK'
 

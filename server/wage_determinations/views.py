@@ -77,9 +77,7 @@ class RateSearchList(views.APIView):
     def get(self, request, format=None):
         qry = self.qry()
         print(qry)
-        q_terms = {p: v for (p, v) in request.query_params.items()}
-        print(q_terms)
-        rates = models.Rate.objects.raw(self.qry(), request.query_params)
+        rates = models.Rate.objects.raw(qry, request.query_params)
         serializer = serializers.RateSerializer(rates,
                                                 many=True,
                                                 context={'request': request})
