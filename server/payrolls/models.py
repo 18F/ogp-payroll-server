@@ -21,8 +21,8 @@ class Location(models.Model):
 
 
 class Contractor(models.Model):
-    cage = models.TextField()
-    name = models.TextField()
+    cage = models.TextField(db_index=True)  # uniqueness?  Versions...
+    name = models.TextField(db_index=True)
     address = models.ForeignKey(Location)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

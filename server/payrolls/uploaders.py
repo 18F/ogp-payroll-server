@@ -49,8 +49,9 @@ class Uploader(object):
 
     @transaction.atomic
     def upload(self, raw, data):
-        if 'project_id' not in data:
-            raise exceptions.ValidationError('project_id missing')
+        for requirement in ('project_id', 'cage':
+            if requirement not in data:
+                raise exceptions.ValidationError('{} missing'.format(requirement))
         contractor = None
         for line in csv.reader(raw.decode('utf8').splitlines()):
             if not contractor:
@@ -61,10 +62,12 @@ class Uploader(object):
                 contractor_data = self.extract('Contractor', line)
                 contractor = models.Contractor.objects.filter(
                     name=contractor_data['name']).filter(
-                        address=address).first()
+                        address=address).filter(
+                        cage=cage).first()
                 if not contractor:
                     contractor = models.Contractor(
                         name=contractor_data['name'],
+                        cage=data['cage']
                         address=address,
                         submitter=self.uploading_user)
                     contractor.save()

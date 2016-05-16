@@ -10,7 +10,7 @@ from . import models, serializers, uploaders
 
 
 class LocationViewSet(viewsets.ModelViewSet):
-    queryset = models.Location.objects
+    queryset = models.Location.objects.all()
     serializer_class = serializers.LocationSerializer
 
     def create(self, request, *args, **kwargs):
@@ -25,32 +25,32 @@ class LocationViewSet(viewsets.ModelViewSet):
 
 
 class ContractorViewSet(viewsets.ModelViewSet):
-    queryset = models.Contractor.objects
-    serializer_class = serializers.ProjectSerializer
+    queryset = models.Contractor.objects.all()
+    serializer_class = serializers.ContractorSerializer
 
 
 class FringeExceptionViewSet(viewsets.ModelViewSet):
-    queryset = models.FringeException.objects
+    queryset = models.FringeException.objects.all()
     serializer_class = serializers.FringeExceptionSerializer
 
 
 class DayViewSet(viewsets.ModelViewSet):
-    queryset = models.Day.objects
+    queryset = models.Day.objects.all()
     serializer_class = serializers.DaySerializer
 
 
 class PayrollLineViewSet(viewsets.ModelViewSet):
-    queryset = models.PayrollLine.objects
+    queryset = models.PayrollLine.objects.all()
     serializer_class = serializers.PayrollLineSerializer
 
 
 class WorkerViewSet(viewsets.ModelViewSet):
-    queryset = models.Worker.objects
+    queryset = models.Worker.objects.all()
     serializer_class = serializers.WorkerSerializer
 
 
 class PayrollViewSet(viewsets.ModelViewSet):
-    queryset = models.Payroll.objects
+    queryset = models.Payroll.objects.all()
     serializer_class = serializers.PayrollSerializer
 
     def get_queryset(self):
@@ -63,22 +63,30 @@ class PayrollViewSet(viewsets.ModelViewSet):
         # TODO: data range?  payroll number?
 
 
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = models.Project.objects.all()
+    serializer_class = serializers.ProjectSerializer
+
+
 class UserList(generics.ListAPIView):
-    queryset = User.objects
+    queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
 
 
 class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects
+    queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
 
 
 class PayrollUploadViewSet(viewsets.ModelViewSet):
 
-    queryset = models.PayrollUpload.objects
+    queryset = models.PayrollUpload.objects.all()
     serializer_class = serializers.PayrollUploadSerializer
     parser_classes = (parsers.MultiPartParser, parsers.FormParser,
                       parsers.JSONParser, parsers.FileUploadParser)
+
+    # TODO: accept upload that does not contain the payroll,
+    # is just an attachment
 
     def perform_create(self, serializer):
         raw = self.request.data['datafile'].read()

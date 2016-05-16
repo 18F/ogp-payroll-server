@@ -1,7 +1,7 @@
 appnope==0.1.0
 Django==1.9.5
 djangorestframework==3.3.3
-dateutils=0.6.6
+dateutils==0.6.6
 factory-boy==2.6.1
 fake-factory==0.5.7
 future==0.15.2
@@ -17,4 +17,3 @@ usaddress==0.5.7
 whitenoise==1.0.6  #manages static assets
 dj-database-url==0.3.0 #grabs environment variables and dumps them into a Django settings file
 waitress==0.8.9 #a pure python WSGI server that is a replacement for gunicorn
-
