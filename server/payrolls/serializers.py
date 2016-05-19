@@ -14,6 +14,19 @@ class LocationSerializer(serializers.HyperlinkedModelSerializer):
 class ContractorSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Contractor
+        fields = ('url',
+                  'cage',
+                  'name',
+                  'address',
+                  'created',
+                  'modified',
+                  'submitter',
+                  'projectcontractor_set', )
+
+
+class ProjectContractorSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ProjectContractor
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,18 +39,22 @@ class DaySerializer(serializers.HyperlinkedModelSerializer):
         model = models.Day
 
 
+class LineQuantitySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.LineQuantity
+
+
 class PayrollLineSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.PayrollLine
 
     day_set = DaySerializer(many=True)
+    linequantity_set = LineQuantitySerializer(many=True)
 
 
 class WorkerSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Worker
-
-    payrollline_set = PayrollLineSerializer(many=True)
 
 
 class FringeExceptionSerializer(serializers.HyperlinkedModelSerializer):
@@ -45,11 +62,18 @@ class FringeExceptionSerializer(serializers.HyperlinkedModelSerializer):
         model = models.FringeException
 
 
+class WorkweekSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Workweek
+
+    payrollline_set = PayrollLineSerializer(many=True)
+
+
 class PayrollSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Payroll
 
-    worker_set = WorkerSerializer(many=True)
+    workweek_set = WorkweekSerializer(many=True)
     fringeexception_set = FringeExceptionSerializer(many=True)
 
 

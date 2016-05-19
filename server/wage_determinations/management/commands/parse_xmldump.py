@@ -1,3 +1,4 @@
+import glob
 import sys
 from datetime import datetime
 from pprint import pprint
@@ -135,68 +136,76 @@ if __name__ == '__main__':
 
 
 class Command(BaseCommand):
-    """
+    """Import XML dump(s) of wage determination data"""
+
     def add_arguments(self, parser):
-        parser.add_argument('filenames', nargs='+', type=str)
-    """
+        parser.add_argument('file',
+                            nargs='*',
+                            type=str,
+                            default=[DEFAULT_FILENAME, ],
+                            help="XML file(s) to import")
 
     def handle(self, *args, **options):
         models.delete_all()
-        if not args:
-            args = [DEFAULT_FILENAME, ]
-        for filename in args:
-            for det in extract_rates(filename):
-                try:
-                    determination = models.WageDetermination.objects.get(
-                        code=det['code'])
-                except exceptions.ObjectDoesNotExist:
-                    determination = models.WageDetermination(
-                        code=det['code'],
-                        published_date=det['published_date'],
-                        header=det['header'] or '',
-                        footer=det['footer'] or '', )
-                    determination.save()
-                print(determination)
-                for rate in det['rates']:
-                    rate_instance = models.Rate(
-                        determination=determination,
-                        dollars_per_hour=rate['rate'],
-                        fringe=rate['fringe'] or '',
-                        group_qualifier=rate['groupQualifier'] or '',
-                        construction_type=rate['construction_type'][
-                            'type'] or '',
-                        construction_subtype=rate['construction_type'][
-                            'subtype'] or '',
-                        construction_qualifier=rate['construction_type'][
-                            'qualifier'] or '',
-                        construction_survey_qualifier=rate[
-                            'construction_type']['surveyQualifier'] or '',
-                        occupation=rate['occupation']['occupation'][
-                            'title'] or '',
-                        occupation_qualifier=rate['occupation']['occupation'][
-                            'qualifier'] or '',
-                        location_qualifier=rate['location_qualifier'] or '',
-                        survey_location_qualifier=rate[
-                            'survey_location_qualifier'] or '', )
-                    rate_instance.save()
-                    if 'rate' in rate['occupation']:
-                        rate_instance.rate_name = rate['occupation']['rate'][
-                            'title'] or ''
-                        rate_instance.rate_name_qualifier = rate['occupation'][
-                            'rate']['qualifier'] or ''
-                        if 'subrate' in rate['occupation']:
-                            rate_instance.subrate_name = rate['occupation'][
-                                'subrate']['title'] or ''
-                            rate_instance.subrate_name_qualifier = rate[
-                                'occupation']['subrate']['qualifier'] or ''
-                    for raw_county in rate['counties']:
-                        state = models.State.get_or_make(raw_county['abbrev'],
-                                                         raw_county['state'])
-                        state.save()
-                        county = models.County.get_or_make(
-                            '{county}, {abbrev}'.format(**raw_county))
-                        county.save()
-                        rate_instance.counties.add(county)
-                        print(county)
-                    rate_instance.save()
-                    print(rate_instance)
+        for filepatt in options['file']:
+            for filename in glob.glob(filepatt):
+                for det in extract_rates(filename):
+                    try:
+                        determination = models.WageDetermination.objects.get(
+                            code=det['code'])
+                    except exceptions.ObjectDoesNotExist:
+                        determination = models.WageDetermination(
+                            code=det['code'],
+                            published_date=det['published_date'],
+                            header=det['header'] or '',
+                            footer=det['footer'] or '', )
+                        determination.save()
+                    print(determination)
+                    for rate in det['rates']:
+                        rate_instance = models.Rate(
+                            determination=determination,
+                            dollars_per_hour=rate['rate'],
+                            fringe=rate['fringe'] or '',
+                            group_qualifier=rate['groupQualifier'] or '',
+                            construction_type=rate['construction_type'][
+                                'type'] or '',
+                            construction_subtype=rate['construction_type'][
+                                'subtype'] or '',
+                            construction_qualifier=rate['construction_type'][
+                                'qualifier'] or '',
+                            construction_survey_qualifier=rate[
+                                'construction_type']['surveyQualifier'] or '',
+                            occupation=rate['occupation']['occupation'][
+                                'title'] or '',
+                            occupation_qualifier=rate['occupation'][
+                                'occupation'][
+                                    'qualifier'] or '',
+                            location_qualifier=rate[
+                                'location_qualifier'] or '',
+                            survey_location_qualifier=rate[
+                                'survey_location_qualifier'] or '', )
+                        rate_instance.save()
+                        if 'rate' in rate['occupation']:
+                            rate_instance.rate_name = rate['occupation'][
+                                'rate'][
+                                    'title'] or ''
+                            rate_instance.rate_name_qualifier = rate[
+                                'occupation'][
+                                    'rate']['qualifier'] or ''
+                            if 'subrate' in rate['occupation']:
+                                rate_instance.subrate_name = rate[
+                                    'occupation'][
+                                        'subrate']['title'] or ''
+                                rate_instance.subrate_name_qualifier = rate[
+                                    'occupation']['subrate']['qualifier'] or ''
+                        for raw_county in rate['counties']:
+                            state = models.State.get_or_make(
+                                raw_county['abbrev'], raw_county['state'])
+                            state.save()
+                            county = models.County.get_or_make(
+                                '{county}, {abbrev}'.format(**raw_county))
+                            county.save()
+                            rate_instance.counties.add(county)
+                            print(county)
+                        rate_instance.save()
+                        print(rate_instance)

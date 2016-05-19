@@ -49,9 +49,10 @@ class Uploader(object):
 
     @transaction.atomic
     def upload(self, raw, data):
-        for requirement in ('project_id', 'cage':
+        for requirement in ('project_id', 'cage'):
             if requirement not in data:
-                raise exceptions.ValidationError('{} missing'.format(requirement))
+                raise exceptions.ValidationError('{} missing'.format(
+                    requirement))
         contractor = None
         for line in csv.reader(raw.decode('utf8').splitlines()):
             if not contractor:
@@ -62,12 +63,11 @@ class Uploader(object):
                 contractor_data = self.extract('Contractor', line)
                 contractor = models.Contractor.objects.filter(
                     name=contractor_data['name']).filter(
-                        address=address).filter(
-                        cage=cage).first()
+                        address=address).filter(cage=data['cage']).first()
                 if not contractor:
                     contractor = models.Contractor(
                         name=contractor_data['name'],
-                        cage=data['cage']
+                        cage=data['cage'],
                         address=address,
                         submitter=self.uploading_user)
                     contractor.save()
@@ -81,21 +81,29 @@ class Uploader(object):
                 payroll.mark_others_noncurrent()
 
             worker_data = self.extract('Worker', line)
-            worker = models.Worker.objects.filter(payroll=payroll).filter(
-                name=worker_data['name']).first()
+            if worker_data['identifier']:
+                match_field = 'identifier'
+            else:
+                match_field = 'name'
+            worker = models.Worker.objects.filter(
+                contractor=contractor).filter(
+                    name=worker_data[match_field]).first()
             if not worker:
-                worker = models.Worker(payroll=payroll, **worker_data)
+                worker = models.Worker(contractor=contractor, **worker_data)
                 worker.save()
 
+            workweek = models.Workweek(payroll=payroll, worker=worker)
+            workweek.save()
+            payroll.workweek_set.add(workweek)
+
             payroll_line_data = self.extract('PayrollLine', line)
-            payroll_line = models.PayrollLine(worker=worker,
+            payroll_line = models.PayrollLine(workweek=workweek,
                                               **payroll_line_data)
             payroll_line.save()
 
             day_data = self.extract('Day', line)
             for (days_back, hours) in enumerate(reversed(day_data['hours'])):
                 day = models.Day(payroll_line=payroll_line,
-                                 job_name=day_data['job_name'],
                                  date=payroll.period_end - datetime.timedelta(
                                      days=days_back),
                                  hours=float(hours or 0))
@@ -136,8 +144,12 @@ def word_number(txt, idx, data_type=str):
     return data_type(word)
 
 
-def until_digits(txt):
-    return re.split('\d', txt)[0]
+def until_pattern(txt, pattern):
+    return re.split(pattern, txt)[0]
+
+
+def extract_pattern(txt, pattern):
+    return re.search(pattern, txt).group(0)
 
 
 def decimal_or_zero(txt):
@@ -145,6 +157,7 @@ def decimal_or_zero(txt):
 
 
 class AmgUploader(Uploader):
+    """Note: the CSVs from AMG omit all tax and deduction info!"""
 
     name = 'AMG'
 
@@ -162,14 +175,15 @@ class AmgUploader(Uploader):
                    'zip_code': (2, from_address_line, 'zip_code'),
                },
                'Worker': {
-                   'name': (28, until_digits),
+                   'name': (28, until_pattern, r'\d'),
+                   'identifier': (28, extract_pattern, r'\d+'),
                },
                'Day': {
-                   'job_name': 30,
                    'hours': ('31-38',
                              decimal_or_zero, ),
                },
                'PayrollLine': {
+                   'job_name': 30,
                    'time_type': 40,
                    'dollars_per_hour': (41,
                                         decimal_or_zero, ),

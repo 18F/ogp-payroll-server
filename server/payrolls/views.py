@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from rest_framework import (exceptions, generics, parsers, permissions, status,
                             views, viewsets)
+from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from . import models, serializers, uploaders
@@ -27,6 +28,12 @@ class LocationViewSet(viewsets.ModelViewSet):
 class ContractorViewSet(viewsets.ModelViewSet):
     queryset = models.Contractor.objects.all()
     serializer_class = serializers.ContractorSerializer
+    filter_fields = ('cage', 'name', 'submitter', )
+
+
+class ProjectContractorViewSet(viewsets.ModelViewSet):
+    queryset = models.ProjectContractor.objects.all()
+    serializer_class = serializers.ProjectContractorSerializer
 
 
 class FringeExceptionViewSet(viewsets.ModelViewSet):
@@ -39,6 +46,11 @@ class DayViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DaySerializer
 
 
+class LineQuantityViewSet(viewsets.ModelViewSet):
+    queryset = models.LineQuantity.objects.all()
+    serializer_class = serializers.LineQuantitySerializer
+
+
 class PayrollLineViewSet(viewsets.ModelViewSet):
     queryset = models.PayrollLine.objects.all()
     serializer_class = serializers.PayrollLineSerializer
@@ -47,6 +59,11 @@ class PayrollLineViewSet(viewsets.ModelViewSet):
 class WorkerViewSet(viewsets.ModelViewSet):
     queryset = models.Worker.objects.all()
     serializer_class = serializers.WorkerSerializer
+
+
+class WorkweekViewSet(viewsets.ModelViewSet):
+    queryset = models.Workweek.objects.all()
+    serializer_class = serializers.WorkweekSerializer
 
 
 class PayrollViewSet(viewsets.ModelViewSet):
@@ -60,7 +77,12 @@ class PayrollViewSet(viewsets.ModelViewSet):
                 contractor__cage=self.request.query_params['cage'])
         return queryset.all()
 
-        # TODO: data range?  payroll number?
+    @detail_route(methods=['post', ])
+    def clone(self, request, *args, **kwargs):
+        original = self.get_object()
+        new = original.clone(payroll_number=request.data['payroll_number'],
+                             period_end=request.data['period_end'])
+        return Response({'url': '/payroll/{}/'.format(new.id)})
 
 
 class ProjectViewSet(viewsets.ModelViewSet):

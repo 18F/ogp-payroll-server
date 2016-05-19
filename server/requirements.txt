@@ -12,6 +12,7 @@ psycopg2==2.6.1
 python-dateutil==2.5.2
 requests==2.9.1
 usaddress==0.5.7
+django-crispy-forms==1.6.0
 -e git+https://github.com/18F/django-pg-fts.git@db1d5ed05215408068c6eab06dff668d19c50c36#egg=django_pg_fts
 
 whitenoise==1.0.6  #manages static assets
