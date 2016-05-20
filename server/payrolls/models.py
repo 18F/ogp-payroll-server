@@ -90,6 +90,9 @@ class Payroll(models.Model):
     date_submitted_to_parent = models.DateField(blank=True, null=True)
     date_submitted_to_gov = models.DateField(blank=True, null=True)
     signer_name = models.TextField()
+    """`fringe_benefit_programs` and `fringe_benefit_cash`
+    are for recording an employer's answers to assertion 4(c)
+    in WH-347 Certified Payroll Exercise."""
     fringe_benefit_programs = models.BooleanField(default=False)
     fringe_benefit_cash = models.BooleanField(default=False)
     submitter = models.ForeignKey('auth.User', related_name='payrolls')
@@ -119,8 +122,7 @@ class Payroll(models.Model):
 
 
 class Workweek(models.Model):
-    # Not necessarily a literal week, but "workpayperiod"
-    # is an ugly name
+    """All data on one payroll for each worker."""
     payroll = models.ForeignKey(Payroll)
     worker = models.ForeignKey(Worker)
     number_withholding_exceptions = models.IntegerField(default=0)
@@ -144,15 +146,19 @@ class PayrollUpload(models.Model):
 
 
 class FringeException(models.Model):
+    """List of exceptions and explanations from the
+    assertions in `Payroll.fringe_benefit_programs`
+    and `Payroll.fringe_benefit_cash`.
+    """
     exception = models.TextField()
     explanation = models.TextField(blank=True)
     payroll = models.ForeignKey(Payroll)
 
 
 class Withholding(models.Model):
-    purpose = models.TextField(blank=False)
+    purpose = models.TextField(blank=False)  # Tax, FICA, etc.
     dollars = models.DecimalField(blank=True, max_digits=6, decimal_places=2)
-    worker = models.ForeignKey(Worker)
+    workweek = models.ForeignKey(Workweek)
 
 
 class PayrollLine(models.Model):
