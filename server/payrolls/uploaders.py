@@ -1,3 +1,9 @@
+"""
+Uploader classes for generation of payroll data from CSV uploads.
+
+Because each program generating CSVs may arrange its data differently,
+``Uploader`` should be subclassed for each structure to be supported.
+"""
 import csv
 import datetime
 import re
@@ -157,7 +163,11 @@ def decimal_or_zero(txt):
 
 
 class AmgUploader(Uploader):
-    """Note: the CSVs from AMG omit all tax and deduction info!"""
+    """
+    Uploader for the format represented by the
+    sample data at sample_data/amg_payroll.csv
+
+    Note: the CSVs from AMG omit all tax and deduction info!"""
 
     name = 'AMG'
 
@@ -191,6 +201,14 @@ class AmgUploader(Uploader):
 
 
 def upload(request, raw_data):
+    """
+    Generate payroll data from a web request with a .csv upload.
+
+    At present, simply tries each available Uploader class, accepting the
+    first one which passes without data validation errors.  As ``Uploader``
+    subclasses are added, a more sophisticated format recognizer should be
+    added.
+    """
     upload_exceptions = {}
     for uploader in (AmgUploader, ):
         try:
