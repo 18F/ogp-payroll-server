@@ -3,7 +3,7 @@ import datetime
 from django.db import models
 from django.utils.dateparse import parse_date
 
-from wage_determinations.models import County, Rate, State
+from wage_determinations.models import County, Rate
 
 
 class Location(models.Model):
@@ -164,17 +164,14 @@ class Withholding(models.Model):
 class PayrollLine(models.Model):
     REGULAR = 'REG'
     OVERTIME = 'OT'
-    # TIME_TYPE_CHOICES = ((REGULAR, 'Regular'), (OVERTIME, 'Overtime'), )
 
     workweek = models.ForeignKey(Workweek)
     job_name = models.TextField()
     work_classification = models.TextField(blank=True, )  # tie to WDOL!
     dol_rate = models.ForeignKey(Rate, null=True, blank=True)
-    dollars_per_hour = models.DecimalField(blank=True,
-                                           max_digits=6,
-                                           decimal_places=2)
+    dollars_per_hour = models.DecimalField(
+        blank=True, max_digits=6, decimal_places=2)
     response = models.TextField(blank=True)
-    # time_type = models.CharField(max_length=3, choices=((REGULAR, 'Regular'), (OVERTIME, 'Overtime'), ))
     time_type = models.TextField(default='REG')
 
     def clone(self):
@@ -184,8 +181,8 @@ class PayrollLine(models.Model):
         self.save()
         for (days_back, day) in enumerate(reversed(days)):
             new_day = day.clone()
-            new_day.date = self.workweek.payroll.period_end - datetime.timedelta(
-                days_back)
+            new_day.date = (self.workweek.payroll.period_end -
+                            datetime.timedelta(days_back))
             new_day.save()
             self.day_set.add(new_day)
         for linequantity in linequantities:

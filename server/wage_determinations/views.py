@@ -1,4 +1,4 @@
-from rest_framework import status, views, viewsets
+from rest_framework import views, viewsets
 from rest_framework.response import Response
 
 from . import models, serializers
@@ -50,7 +50,6 @@ class RateSearchList(views.APIView):
 
     def qry(self):
         filters = []
-        params = dict(self.request.query_params)
         if 'q' in self.request.query_params:
             rank_term = 'ts_rank_cd(fts_index, textsearch)'
             textsearch = "TO_TSQUERY(%(q)s)"

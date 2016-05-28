@@ -1,8 +1,8 @@
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APIRequestFactory, APITestCase
+from rest_framework.test import APITestCase
 
-from . import factories, models
+from . import factories
 
 
 class CountyTests(APITestCase):

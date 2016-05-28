@@ -3,7 +3,7 @@ import random
 import factory
 from django.contrib import auth
 
-from wage_determinations.factories import CountyFactory, StateFactory
+from wage_determinations.factories import CountyFactory
 
 from . import models
 

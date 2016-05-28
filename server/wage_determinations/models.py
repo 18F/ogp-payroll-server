@@ -1,6 +1,5 @@
 import re
 
-from django.core import exceptions
 from django.db import models
 
 from pg_fts.fields import TSVectorField
@@ -60,9 +59,7 @@ class County(models.Model):
                 state = (State.objects.filter(abbrev=state) or
                          State.objects.filter(name=state)).first()
                 if not state:
-                    raise State.NotFoundError(
-                        'abbrev {} does not match name {}'.format(abbrev,
-                                                                  name))
+                    raise State.NotFoundError('No US state: {}'.format(state))
                 qu = qu.filter(us_state=state)
                 if not qu:
                     return cls(name=county, us_state=state)
@@ -109,10 +106,12 @@ class Rate(models.Model):
     # when a user needs to request a new determination
     # official_dol = models.BooleanField(default=True)
 
+    _STR_TEMPLATE = '{determination}: {occupation}/{rate_name}/{subrate_name} '
+    _STR_TEMPLATE += '${dollars_per_hour}'
+
     def __str__(self):
-        return '{determination}: {occupation}/{rate_name}/{subrate_name} ${dollars_per_hour}'.format(
-            determination=self.determination,
-            **self.__dict__)
+        return self._STR_TEMPLATE.format(determination=self.determination,
+                                         **self.__dict__)
 
     fts_index = TSVectorField(
         (('occupation', 'A'),

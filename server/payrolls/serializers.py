@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from wage_determinations.serializers import CountySerializer
-
 from . import models
 
 
@@ -87,11 +85,9 @@ class PayrollUploadSerializer(serializers.HyperlinkedModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     payrolls = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=models.Payroll.objects.all())
+        many=True, queryset=models.Payroll.objects.all())
     contractors = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=models.Contractor.objects.all())
+        many=True, queryset=models.Contractor.objects.all())
 
     class Meta:
         model = User

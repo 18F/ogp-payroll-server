@@ -1,9 +1,5 @@
-import csv
-
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-from rest_framework import (exceptions, generics, parsers, permissions, status,
-                            views, viewsets)
+from rest_framework import (generics, parsers, status, viewsets)
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
